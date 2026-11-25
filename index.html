@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#172b22"><meta name="description" content="Petualangan bertani pixel art offline di Little Village Adventure."><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Little Village Adventure v0.3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#172b22;color:#fff4d6;font-family:system-ui,sans-serif;display:flex;justify-content:center}.app{width:min(100%,720px);padding:12px}.head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}h1{font-size:18px;line-height:1.05;margin:0;color:#e7f3b1}.small{font-size:10px;color:#b8cdb1}.hud{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.chip{background:#294d39;border:1px solid #557a4b;border-radius:9px;padding:6px 8px;font-size:11px;font-weight:800}.layout{display:grid;gap:10px}.board{background:#0c1d17;border:4px solid #d8c79a;border-radius:12px;padding:5px}canvas{display:block;width:100%;height:auto;image-rendering:pixelated;border-radius:5px;touch-action:none}.info{display:flex;justify-content:space-between;font-size:11px;margin:7px 2px;color:#d8e8ca}.panel{background:#294d39;border:1px solid #557a4b;border-radius:12px;padding:10px;margin-bottom:8px}#message{font-size:12px;min-height:34px;color:#f8edbd;font-weight:700}.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:7px}button{border:0;border-radius:9px;padding:10px 5px;background:#d9e99a;color:#263d2d;font-weight:900;font-size:11px;touch-action:manipulation}button:active{filter:brightness(.9)}.move{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;max-width:220px;margin:8px auto}.move button{background:#476c4c;color:white;font-size:18px;padding:10px}.empty{visibility:hidden}.inventory{font-size:11px;line-height:1.8;color:#e1edcf}.hint{text-align:center;font-size:10px;color:#b8cdb1;margin:8px}@media(min-width:600px){.layout{grid-template-columns:1.25fr .75fr;align-items:start}}
+</style></head><body><main class="app">
+<header class="head"><div><h1>🌼 LITTLE VILLAGE<br>ADVENTURE</h1><div class="small">Pixel farm • Offline prototype v0.3</div></div><div class="hud"><div class="chip">🪙 <span id="gold">35</span></div><div class="chip">☀️ Hari <span id="day">1</span></div><div class="chip">⚡ <span id="energy">24</span></div></div></header>
+<div class="layout"><section><div class="board"><canvas id="world" width="600" height="420"></canvas></div><div class="info"><span>📍 <b id="place">Desa & kebun</b></span><span>🕒 <b id="clock">08:00</b></span></div>
+<div class="move"><span class="empty"></span><button data-m="up">▲</button><span class="empty"></span><button data-m="left">◀</button><button data-m="down">▼</button><button data-m="right">▶</button></div><div class="hint">Gerakkan dengan tombol arah atau WASD. Dekati objek untuk berinteraksi.</div></section>
+<aside><div class="panel"><div id="message">Selamat datang di desa! Simpan permainanmu secara berkala.</div><div class="actions">
+<button id="plant">🌱 TANAM</button><button id="water">💧 SIRAM</button><button id="harvest">🧺 PANEN</button>
+<button id="feed">🐔 BERI PAKAN</button><button id="collect">🥚 AMBIL TELUR</button><button id="fish">🎣 PANCING</button>
+<button id="mine">⛏️ CARI BIJIH</button><button id="talk">💬 BICARA</button><button id="cook">🍲 MEMASAK</button>
+<button id="sell">🪙 JUAL</button><button id="shop">🏪 TOKO</button><button id="sleep">🌙 TIDUR</button>
+<button id="enter">🚪 MASUK/KELUAR</button><button id="upgrade">🏡 UPGRADE RUMAH</button><button id="save">💾 SIMPAN</button><button id="load">📂 MUAT</button>
+</div></div>
+<div class="panel"><b>🎒 Inventaris</b><div class="inventory">Benih: <b id="seeds">3</b> • Panen: <b id="crops">0</b><br>Telur: <b id="eggs">0</b> • Ikan: <b id="fishcount">0</b><br>Bijih: <b id="ore">0</b> • Pakan: <b id="feedcount">3</b><br>Makanan: <b id="meals">0</b> • Rumah: <b id="house">1</b><br>Persahabatan: <b id="friend">0</b></div></div>
+<div class="panel"><b>📖 Fitur v0.3</b><div class="inventory">• Hewan bergerak di sekitar kandang.<br>• Masuk ke rumah dan memasak hasil kebun.<br>• Simpan/muat progres di perangkat ini.<br>• Tanaman tumbuh setelah disiram dan tidur.</div></div>
+</aside></div></main>
+<script>
+const cv=document.getElementById('world'),ctx=cv.getContext('2d'),S=30,W=20,H=14;
+const initial=()=>({p:{x:8,y:8},gold:35,day:1,energy:24,minute:0,seeds:3,crops:0,eggs:0,fishcount:0,ore:0,feedcount:3,meals:0,house:1,friend:0,inside:false,plots:[{x:5,y:6,s:0,w:false},{x:6,y:6,s:0,w:false},{x:7,y:6,s:0,w:false},{x:5,y:7,s:0,w:false},{x:6,y:7,s:0,w:false},{x:7,y:7,s:0,w:false}],chickenFed:false,eggReady:false});
+let g=initial(),walk=0,animalTick=0,animals=[{x:12.2,y:7.1,dx:.025},{x:13.3,y:7.5,dx:-.02}];
+const $=id=>document.getElementById(id),say=t=>$('message').textContent=t;
+function ui(){['gold','day','energy','seeds','crops','eggs','fishcount','ore','feedcount','meals','house','friend'].forEach(k=>$(k).textContent=g[k]);$('clock').textContent=String(8+Math.floor(g.minute/60)).padStart(2,'0')+':'+String(g.minute%60).padStart(2,'0');$('place').textContent=g.inside?'Di dalam rumah':g.p.x>15&&g.p.y>8?'Tambang':g.p.x>14&&g.p.y<5?'Kolam':g.p.x>11&&g.p.y>5?'Peternakan':g.p.y<4&&g.p.x<6?'Rumah':'Desa & kebun'}
+function box(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x,y,w,h)}function tile(x,y,c){box(x*S,y*S,S,S,c);box(x*S+2,y*S+2,S-4,S-4,c)}function tree(x,y){box(x*S+12,y*S+17,7,13,'#79533a');box(x*S+3,y*S+1,25,24,'#347747');box(x*S+8,y*S+5,15,14,'#55a052')}
+function draw(){
+ if(g.inside){box(0,0,600,420,'#a66f49');for(let y=0;y<14;y++)for(let x=0;x<20;x++)tile(x,y,(x+y)%2?'#bd895d':'#c99668');box(75,60,450,300,'#e7c99b');box(75,60,450,16,'#8d5038');box(90,85,90,65,'#8ccbd0');box(420,85,90,65,'#8ccbd0');box(250,210,100,90,'#8b593c');ctx.font='26px serif';ctx.fillText('🛏️',285,250);ctx.fillText('🍳',130,275);ctx.fillText('🚪',485,335);ctx.fillStyle='#4b3428';ctx.font='14px monospace';ctx.fillText('RUMAH KECIL',235,45)}
+ else {
+ for(let y=0;y<H;y++)for(let x=0;x<W;x++)tile(x,y,(x+y)%2?'#79b85d':'#83c266');
+ for(let x=0;x<W;x++)tile(x,10,'#c5a36a');for(let y=8;y<11;y++)tile(12,y,'#c5a36a');
+ box(440,24,135,112,'#3c8eae');box(447,31,121,98,'#65b8ca');for(let i=0;i<6;i++)box(455+i*17,48+(i%2)*28,8,3,'#b0e0df');
+ box(38,38,115,72,'#e6c58a');box(29,27,133,27,'#9a5541');box(85,76,24,34,'#74513b');box(48,65,22,18,'#8bd0d6');box(119,65,22,18,'#8bd0d6');
+ box(360,230,82,65,'#bd694b');box(352,218,98,23,'#8d473d');box(390,258,24,37,'#654333');box(495,285,80,90,'#806b5b');box(507,300,56,75,'#282d2a');
+ [[2,2],[6,2],[16,2],[18,5],[2,9],[15,11],[3,12]].forEach(a=>tree(...a));
+ g.plots.forEach(q=>{box(q.x*S+2,q.y*S+2,26,26,'#98653e');box(q.x*S+5,q.y*S+5,20,20,'#ae7948');if(q.s){box(q.x*S+12,q.y*S+14,5,8,'#4c853b');box(q.x*S+7,q.y*S+8,14,8,q.s===1?'#75b94d':'#4c9b42');if(q.s>=2){box(q.x*S+8,q.y*S+6,5,5,'#f4cf55');box(q.x*S+17,q.y*S+6,5,5,'#f4cf55')}}if(q.w)box(q.x*S+3,q.y*S+22,5,3,'#70c5e5')});
+ ctx.font='22px serif';ctx.fillText('🐔',animals[0].x*S,animals[0].y*S);ctx.fillText('🐄',animals[1].x*S,animals[1].y*S);ctx.fillText('🧑‍🌾',275,285);ctx.fillText('⛏️',520,278);
+ }
+ let x=g.p.x*S,y=g.p.y*S;box(x+9,y+5,12,10,'#efc28d');box(x+8,y+3,14,6,'#593b2d');box(x+7,y+15,16,10,walk%2?'#5b8ac2':'#4776b5');box(x+7+(walk%2?2:0),y+25,6,4,'#543b2c');box(x+18-(walk%2?2:0),y+25,6,4,'#543b2c');
+}
+function dist(x,y,a,b){return Math.abs(x-a)+Math.abs(y-b)}function nearPlot(){return g.plots.find(q=>dist(g.p.x,g.p.y,q.x,q.y)<=1)}function spend(n){if(g.energy<n){say('Energi habis. Tidur untuk memulihkan tenaga.');return false}g.energy-=n;g.minute+=10;return true}
+function actPlot(k){let q=nearPlot();if(!q){say('Dekati petak tanah di kebun.');return}if(k==='plant'){if(q.s){say('Petak sudah ditanami.');return}if(g.gold<10||g.seeds<1){say('Butuh 10 koin dan 1 benih.');return}if(!spend(1))return;g.gold-=10;g.seeds--;q.s=1;q.w=false;say('Benih ditanam! Siram sebelum tidur.')}if(k==='water'){if(!q.s){say('Belum ada tanaman.');return}if(q.w){say('Sudah disiram hari ini.');return}if(!spend(1))return;q.w=true;say('Tanaman tersiram. Tidur agar tumbuh.')}if(k==='harvest'){if(q.s<2){say('Belum matang. Siram lalu tidur.');return}if(!spend(1))return;q.s=0;q.w=false;g.crops++;g.seeds++;say('Panen berhasil! +1 hasil panen dan benih.')}ui();draw()}
+$('plant').onclick=()=>actPlot('plant');$('water').onclick=()=>actPlot('water');$('harvest').onclick=()=>actPlot('harvest');
+$('feed').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,13,7)>3){say('Dekati kandang di sisi kanan kebun.');return}if(g.chickenFed){say('Ayam sudah diberi pakan hari ini.');return}if(!g.feedcount){say('Pakan habis. Beli di toko.');return}if(!spend(1))return;g.feedcount--;g.chickenFed=true;say('Ayam sudah makan. Tidur agar menghasilkan telur.');ui()};
+$('collect').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,13,7)>3){say('Dekati kandang ayam.');return}if(!g.eggReady){say('Belum ada telur. Beri pakan lalu tidur.');return}g.eggs++;g.eggReady=false;say('Kamu mengambil 1 telur segar!');ui()};
+$('fish').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,16,3)>5){say('Pergi ke kolam di pojok kanan atas.');return}if(!spend(2))return;if(Math.random()<.72){g.fishcount++;say('Dapat ikan! +1 ikan.')}else say('Ikan lolos. Coba lagi nanti.');ui()};
+$('mine').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,18,10)>4){say('Dekati pintu tambang di pojok kanan bawah.');return}if(!spend(3))return;if(Math.random()<.78){g.ore++;say('Kamu menemukan 1 bijih!')}else say('Tidak menemukan bijih kali ini.');ui()};
+$('talk').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,9,9)>3){say('Dekati warga desa di jalan tengah.');return}g.friend++;if(g.friend%3===0){g.gold+=5;say('Warga senang berteman. Hadiah +5 koin!')}else say('Kamu berbincang dengan warga. Persahabatan meningkat.');ui()};
+$('cook').onclick=()=>{if(g.inside===false||g.p.x<3||g.p.x>8){say('Masuk rumah untuk memasak.');return}if(g.crops<1||g.eggs<1){say('Resep sup membutuhkan 1 hasil panen dan 1 telur.');return}g.crops--;g.eggs--;g.meals++;say('Sup sayur matang! Makanan bisa dijual seharga 40 koin.');ui()};
+$('sell').onclick=()=>{let total=g.crops*25+g.eggs*12+g.fishcount*18+g.ore*15+g.meals*40;if(!total){say('Tas belum berisi barang untuk dijual.');return}g.gold+=total;g.crops=g.eggs=g.fishcount=g.ore=g.meals=0;say('Barang terjual! Kamu mendapat '+total+' koin.');ui()};
+$('shop').onclick=()=>{if(g.inside||dist(g.p.x,g.p.y,9,3)>5){say('Toko berada dekat rumah di kiri atas.');return}if(g.gold<8){say('Butuh 8 koin untuk paket benih dan pakan.');return}g.gold-=8;g.seeds+=3;g.feedcount++;say('Belanja berhasil: +3 benih dan +1 pakan.');ui()};
+$('sleep').onclick=()=>{if(g.inside===false&&g.p.y>5&&g.p.x>10){say('Tidur hanya bisa dilakukan di dekat rumah atau di dalam rumah.');return}g.day++;g.minute=0;g.energy=24;g.plots.forEach(q=>{if(q.s&&q.w)q.s=Math.min(2,q.s+1);q.w=false});if(g.chickenFed)g.eggReady=true;g.chickenFed=false;say('Hari '+g.day+' dimulai. Energi pulih dan tanaman berkembang.');ui();draw()};
+$('enter').onclick=()=>{if(g.inside){g.inside=false;g.p={x:3,y:4};say('Kamu keluar rumah. Selamat menjelajah!')}else if(dist(g.p.x,g.p.y,3,3)<=4){g.inside=true;g.p={x:3,y:9};say('Kamu masuk rumah. Dekati kompor untuk memasak.')}else say('Dekati rumah di pojok kiri atas untuk masuk.');ui();draw()};
+$('upgrade').onclick=()=>{let cost=g.house*100;if(g.gold<cost){say('Upgrade rumah level berikutnya membutuhkan '+cost+' koin.');return}g.gold-=cost;g.house++;say('Rumah berhasil ditingkatkan ke level '+g.house+'!');ui()};
+$('save').onclick=()=>{try{localStorage.setItem('lva_save_v03',JSON.stringify(g));say('Progres berhasil disimpan di perangkat ini.')}catch(e){say('Penyimpanan tidak tersedia di browser ini.')}};
+$('load').onclick=()=>{try{let s=localStorage.getItem('lva_save_v03');if(!s){say('Belum ada data simpanan.');return}let v=JSON.parse(s);if(!v.p||!Array.isArray(v.plots))throw 0;g=v;say('Data permainan berhasil dimuat!');ui();draw()}catch(e){say('Data simpanan tidak bisa dibaca.')}};
+function move(dx,dy){if(g.inside){g.p.x=Math.max(1,Math.min(18,g.p.x+dx));g.p.y=Math.max(2,Math.min(11,g.p.y+dy))}else{g.p.x=Math.max(0,Math.min(W-1,g.p.x+dx));g.p.y=Math.max(0,Math.min(H-1,g.p.y+dy))}walk++;g.minute+=5;ui();draw()}
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{let d=b.dataset.m;move(d==='left'?-1:d==='right'?1:0,d==='up'?-1:d==='down'?1:0)});
+document.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(k==='arrowup'||k==='w')move(0,-1);if(k==='arrowdown'||k==='s')move(0,1);if(k==='arrowleft'||k==='a')move(-1,0);if(k==='arrowright'||k==='d')move(1,0)});
+setInterval(()=>{if(!g.inside){animalTick++;animals.forEach((a,i)=>{a.x+=a.dx;if(a.x>14||a.x<11.5)a.dx*=-1});if(animalTick%3===0)draw()}},350);
+ui();draw();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script></body></html>
