@@ -1,2 +1,10 @@
-"start_url": "./",
-"scope": "./"
+{
+  "name": "Little Village Adventure",
+  "short_name": "Little Village",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#172b22",
+  "theme_color": "#172b22",
+  "description": "Game pertanian pixel offline."
+}
