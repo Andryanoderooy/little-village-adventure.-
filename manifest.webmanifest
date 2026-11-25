@@ -1,21 +1,10 @@
 {
-  "id": "./",
   "name": "Little Village Adventure",
   "short_name": "Little Village",
-  "description": "Petualangan bertani pixel art offline.",
-  "lang": "id-ID",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "any",
   "background_color": "#172b22",
   "theme_color": "#172b22",
-  "icons": [
-    {
-      "src": "./icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ]
+  "description": "Game pertanian pixel offline"
 }

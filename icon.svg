@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-<rect width="512" height="512" rx="96" fill="#172b22"/>
-<rect x="70" y="290" width="372" height="150" rx="22" fill="#9b7047"/>
-<path d="M55 230 256 75l201 155v42H55z" fill="#9a5541"/>
-<path d="M90 250h332v178H90z" fill="#e6c58a"/>
-<rect x="220" y="320" width="72" height="108" rx="8" fill="#74513b"/>
-<rect x="125" y="285" width="62" height="54" rx="6" fill="#8bd0d6"/>
-<rect x="325" y="285" width="62" height="54" rx="6" fill="#8bd0d6"/>
-<path d="M256 32v70M222 67h68" stroke="#d9e99a" stroke-width="18" stroke-linecap="round"/>
-<path d="M78 440h356" stroke="#79b85d" stroke-width="18" stroke-linecap="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="#172b22"/><rect x="64" y="240" width="384" height="208" rx="24" fill="#79b85d"/><path d="M64 240 256 80l192 160" fill="#9a5541"/><rect x="214" y="300" width="84" height="148" fill="#74513b"/><circle cx="350" cy="170" r="42" fill="#f5d66d"/><path d="M350 96v-28m0 204v-28m74-74h28m-204 0h28m126-52 20-20m-144 144 20-20m104 0 20 20m-144-144 20 20" stroke="#f5d66d" stroke-width="14" stroke-linecap="round"/></svg>

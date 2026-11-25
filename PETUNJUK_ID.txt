@@ -1,20 +1,5 @@
-LITTLE VILLAGE ADVENTURE v0.4 — PWA
+LITTLE VILLAGE ADVENTURE v0.5
 
-Paket ini menambahkan:
-- Web App Manifest agar bisa dipasang sebagai aplikasi web.
-- Service Worker untuk cache aset dan penggunaan offline setelah kunjungan pertama.
-- Ikon aplikasi sederhana.
-- Tombol upgrade rumah yang sebelumnya belum ada di tampilan.
-
-CARA MEMAKAI DI HP POCO X3 NFC:
-1. File ini perlu diunggah ke hosting HTTPS agar Chrome mengizinkan instalasi PWA.
-2. Setelah situs terbuka di Chrome dan file sudah tersimpan, pilih menu ⋮ > Tambahkan ke layar utama / Instal aplikasi (nama menu bisa berbeda).
-3. Buka ikon Little Village dari layar utama.
-4. Uji sekali dengan internet, lalu aktifkan mode pesawat untuk memastikan game tetap terbuka offline.
-
-PENTING:
-- ZIP ini adalah paket PWA, bukan APK atau AAB.
-- Service worker dan instalasi PWA membutuhkan HTTPS (localhost juga didukung untuk pengembangan).
-- Offline tersedia setelah kunjungan pertama yang berhasil.
-- Penyimpanan progres game memakai localStorage browser/perangkat.
-- Untuk Google Play, tetap diperlukan proses pembungkusan Android, penandatanganan, pengujian, dan pemeriksaan kebijakan.
+Unggah index.html, manifest.webmanifest, sw.js, dan icon.svg ke root repository GitHub Pages.
+Refresh situs setelah Pages selesai deploy.
+Fitur baru: warga desa dengan dialog dan misi harian (bicara, siram 2 kali, panen 1 kali; hadiah 30 koin).
